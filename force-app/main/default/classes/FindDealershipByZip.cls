@@ -20,6 +20,8 @@ public with sharing class FindDealershipByZip {
             LIMIT 1
         ];
 
+        System.debug('Found ' + matches.size() + ' matching dealerships for ZIP: ' + req.zip + ' and model: ' + req.model);
+
         DealerResult result = new DealerResult();
         if (!matches.isEmpty()) {
             ZipToDealer__c match = matches[0];
