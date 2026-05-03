@@ -87,13 +87,7 @@ public with sharing class TestDriveService {
                         req.modelInterested = timeSlot.Vehicle__r.Name;
                     }
                 } catch (Exception ignore) {} }
-            // if (String.isNotBlank(p.vehicleId)) { try { req.vehicleId = (Id)p.vehicleId; } catch (Exception ignore) {} }
-            // if (String.isNotBlank(p.dealerId)) { try { req.dealerId = (Id)p.dealerId; } catch (Exception ignore) {} }
-             if (String.isNotBlank(p.serviceTerritoryId)) { try { req.serviceTerritoryId = (Id)p.serviceTerritoryId; } catch (Exception ignore) {} }
-            
-            // // Parse datetimes: prefer ISO; fallback to yyyy-MM-dd HH:mm or yyyy-MM-ddTHH:mm
-            // req.slotStart = parseFlexibleDateTime(p.slotStart);
-            // req.slotEnd   = parseFlexibleDateTime(p.slotEnd);
+            if (String.isNotBlank(p.serviceTerritoryId)) { try { req.serviceTerritoryId = (Id)p.serviceTerritoryId; } catch (Exception ignore) {} }
             
             req.firstName = p.firstName;
             req.lastName = p.lastName;
@@ -126,12 +120,7 @@ public with sharing class TestDriveService {
     public static BookResponseDTO bookTestDrive(BookRequestDTO req) {
         // Basic validations
         if (req == null) throw new TestDriveServiceException('Request is required.');
-        //if (req.slotStart == null || req.slotEnd == null) throw new TestDriveServiceException('Slot start and end are required.');
-        //if (req.slotEnd <= req.slotStart) throw new TestDriveServiceException('Slot end must be after start.');
-        //if (req.vehicleId == null) throw new TestDriveServiceException('Vehicle is required.');
         if (String.isBlank(req.zip)) throw new TestDriveServiceException('ZIP is required.');
-        //if (req.serviceTerritoryId == null) throw new TestDriveServiceException('Service Territory is required.');
-        //if (req.dealerId == null) throw new TestDriveServiceException('Dealer is required.');
         if (req.selectedSlotId == null) throw new TestDriveServiceException('Slot should be selected.');
         System.debug('req =============> '+ req);
         // Ensure no scheduling conflict in the same territory
@@ -160,16 +149,6 @@ public with sharing class TestDriveService {
             insert newLead;
             leadId = newLead.Id;
         }
-
-        // Create Service Appointment
-        // ServiceAppointment sa = new ServiceAppointment();
-        // sa.Subject = 'Test Drive';
-        // sa.ServiceTerritoryId = req.serviceTerritoryId;
-        // sa.EarliestStartTime = req.slotStart;
-        // sa.DueDate = req.slotEnd;
-        // sa.Status = 'Scheduled';
-        // // Optional: set Contact and Address fields if desired
-        // insert sa;
 
         // Idempotency for Test_Drive__c vs TestDrive__c naming:
         // The workspace shows both. The user requested Test_Drive__c earlier.
@@ -204,10 +183,6 @@ public with sharing class TestDriveService {
         // Response payload
         BookResponseDTO resp = new BookResponseDTO();
         resp.testDriveId = td.Id;
-        //resp.serviceAppointmentId = sa.Id;
-        //resp.appointmentNumber = sa.AppointmentNumber;
-        //resp.schedStart = (sa.SchedStartTime != null ? sa.SchedStartTime : sa.EarliestStartTime);
-        //resp.schedEnd = (sa.SchedEndTime != null ? sa.SchedEndTime : sa.DueDate);
         if (req.dealerId != null) {
             Account a = [SELECT Name FROM Account WHERE Id = :req.dealerId LIMIT 1];
             resp.dealerName = a != null ? a.Name : null;

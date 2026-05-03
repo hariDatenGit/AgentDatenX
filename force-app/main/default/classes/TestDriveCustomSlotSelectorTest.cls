@@ -311,6 +311,8 @@ private class TestDriveCustomSlotSelectorTest {
         System.assertEquals(0, result.size());
     }
 
+    
+
     // ── buildSearchWindow ─────────────────────────────────────────────────────
 
     @IsTest
