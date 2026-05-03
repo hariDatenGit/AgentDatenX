@@ -1,0 +1,159 @@
+system:
+    instructions: "You are an AI assistant that helps customers find available test drive slots by zip and book a Field Service appointment."
+    messages:
+        welcome: "Hi, I can help you schedule a vehicle test drive. What zip code can I use?"
+        error: "Sorry, something went wrong while processing your request."
+
+config:
+    developer_name: "Test_Drive_Agentz"
+    agent_label: "Test Drive Booking Agent v"
+    description: "Helps customers find available test drive slots and book FSL Service Appointments."
+    default_agent_user: "book_test_drive@00dbm00000flxyi1509736209.ext"
+
+variables:
+    zip_code: mutable string = ""
+    requested_date: mutable string = ""
+    normalized_date: mutable string = ""
+    available_slots: mutable string
+    selected_slot_id: mutable string = ""
+    slot_start_time: mutable string = ""
+    slot_end_time: mutable string = ""
+    dealer_id: mutable string = ""
+    service_territory_id: mutable string = ""
+    vehicle_id: mutable string = ""
+    first_name: mutable string = ""
+    last_name: mutable string = ""
+    email: mutable string = ""
+    phone: mutable string = ""
+
+language:
+    default_locale: "en_US"
+
+start_agent find_slots:
+    label: "Find and Book Test Drive"
+    description: "Complete test drive booking flow"
+    reasoning:
+        instructions: ->
+            | You are the Find and Book Test Drive agent. Guide the user to provide zip code, preferred date, and vehicle, then fetch available slots and book a test drive.
+              
+              - When the user provides a 5-digit zip code, store it using the set_zip tool.
+              - When the user provides a date in any format, normalize it to YYYY-MM-DD and store it using the set_date tool.
+              - When the user provides a vehicle, store it using the set_vehicle tool.
+              - Only after zip_code, normalized_date, and vehicle_id are set and no slot has been selected yet, fetch available slots using the get_slots tool and present them as a numbered list for the user to choose from.
+              - When the user selects a slot, store all slot fields using the set_selected_slot tool.
+              - Then collect first_name, last_name, email, and phone using the set_customer_info tool.
+              - Once selected_slot_id, slot_start_time, slot_end_time, first_name, last_name, email, and phone are all set, proceed to book the test drive using the book_test_drive tool and confirm the details to the user.
+              
+        actions:
+            set_zip: @utils.setVariables
+                description: "Store zip code"
+                with zip_code=...
+            set_date: @utils.setVariables
+                description: "Store date"
+                with requested_date=...
+                with normalized_date=...
+            set_vehicle: @utils.setVariables
+                description: "Store vehicle"
+                with vehicle_id=...
+            set_selected_slot: @utils.setVariables
+                description: "Store slot"
+                with selected_slot_id=...
+                with slot_start_time=...
+                with slot_end_time=...
+            set_customer_info: @utils.setVariables
+                description: "Store customer"
+                with first_name=...
+                with last_name=...
+                with email=...
+                with phone=...
+            get_slots: @actions.get_available_slots_custom
+                description: "Get slots"
+                available when @variables.selected_slot_id == ""
+                with zip=@variables.zip_code
+                with reqDate=@variables.normalized_date
+                with vehicleId=@variables.vehicle_id
+            book_test_drive: @actions.book_test_drive
+                description: "Book"
+                available when @variables.slot_start_time != "" and @variables.slot_end_time != "" and @variables.first_name != "" and @variables.last_name != "" and @variables.email != "" and @variables.phone != ""
+                with zip=@variables.zip_code
+                with vehicleId=@variables.vehicle_id
+                with dealerId=@variables.dealer_id
+                with selectedSlotId=@variables.selected_slot_id
+                with serviceTerritoryId=@variables.service_territory_id
+                with slotStart=@variables.slot_start_time
+                with slotEnd=@variables.slot_end_time
+                with firstName=@variables.first_name
+                with lastName=@variables.last_name
+                with email=@variables.email
+                with phone=@variables.phone
+
+    actions:
+        get_available_slots_custom:
+            description: "Get slots"
+            label: "Get Available Test Drive Slots (Custom)"
+            require_user_confirmation: False
+            include_in_progress_indicator: False
+            target: "apex://TestDriveCustomSlotSelector"
+            inputs:
+                zip: string
+                    label: "zip"
+                    is_required: True
+                    is_user_input: False
+                reqDate: string
+                    label: "reqDate"
+                    is_required: True
+                    is_user_input: False
+                vehicleId: string
+                    label: "vehicleId"
+                    is_required: False
+                    is_user_input: False
+            outputs:
+                json: string
+                    label: "json"
+                    is_displayable: False
+                    filter_from_agent: False
+
+        book_test_drive:
+            description: "Book test drive"
+            label: "Book Test Drive"
+            require_user_confirmation: False
+            include_in_progress_indicator: True
+            target: "apex://TestDriveService"
+            inputs:
+                dealerId: string
+                    is_required: False
+                    is_user_input: False
+                email: string
+                    is_required: False
+                    is_user_input: False
+                firstName: string
+                    is_required: False
+                    is_user_input: False
+                lastName: string
+                    is_required: False
+                    is_user_input: False
+                phone: string
+                    is_required: False
+                    is_user_input: False
+                serviceTerritoryId: string
+                    is_required: False
+                    is_user_input: False
+                slotEnd: string
+                    is_required: False
+                    is_user_input: False
+                slotStart: string
+                    is_required: False
+                    is_user_input: False
+                vehicleId: string
+                    is_required: False
+                    is_user_input: False
+                zip: string
+                    is_required: False
+                    is_user_input: False
+                selectedSlotId: string
+                    is_required: False
+                    is_user_input: False
+            outputs:
+                json: string
+                    is_displayable: False
+                    filter_from_agent: False
