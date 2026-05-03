@@ -140,66 +140,7 @@ public with sharing class TestDriveCustomSlotSelector {
         }
     }
 
-    
-    @TestVisible
-    private static Map<Id, OperatingHours> fetchOperatingHours(Set<Id> territoryIds) {
-        Map<Id, OperatingHours> result = new Map<Id, OperatingHours>();
-        if (territoryIds.isEmpty()) return result;
-
-        Map<Id, ServiceTerritory> terToHours = new Map<Id, ServiceTerritory>([
-            SELECT Id, OperatingHoursId
-            FROM ServiceTerritory
-            WHERE Id IN :territoryIds
-        ]);
-
-        Set<Id> opHoursIds = new Set<Id>();
-        for (ServiceTerritory st : terToHours.values()) {
-            if (st.OperatingHoursId != null) opHoursIds.add(st.OperatingHoursId);
-        }
-
-        Map<Id, OperatingHours> hoursById = new Map<Id, OperatingHours>();
-        if (!opHoursIds.isEmpty()) {
-            hoursById = new Map<Id, OperatingHours>([
-                SELECT Id, Name
-                FROM OperatingHours
-                WHERE Id IN :opHoursIds
-            ]);
-        }
-
-        for (Id terrId : territoryIds) {
-            ServiceTerritory st = terToHours.get(terrId);
-            if (st != null && st.OperatingHoursId != null && hoursById.containsKey(st.OperatingHoursId)) {
-                result.put(terrId, hoursById.get(st.OperatingHoursId));
-            }
-        }
-        return result;
-    }
-
-    @TestVisible
-    private static void buildSearchWindow(SlotRequest req, Map<Id, OperatingHours> opHoursByTer, Datetime windowStart, Datetime windowEnd) {
-        // Default 9:00 to 17:00
-        Time startT = Time.newInstance(9, 0, 0, 0);
-        Time endT = Time.newInstance(17, 0, 0, 0);
-
-        if (req.timeWindow != null) {
-            String tw = req.timeWindow != null ? req.timeWindow.toLowerCase() : null;
-            if (tw == 'morning') {
-                startT = Time.newInstance(9, 0, 0, 0);
-                endT = Time.newInstance(12, 0, 0, 0);
-            } else if (tw == 'afternoon') {
-                startT = Time.newInstance(12, 0, 0, 0);
-                endT = Time.newInstance(16, 0, 0, 0);
-            } else if (tw == 'evening') {
-                startT = Time.newInstance(16, 0, 0, 0);
-                endT = Time.newInstance(19, 0, 0, 0);
-            }
-        }
-
-        windowStart = Datetime.newInstance(req.reqDate, startT);
-        windowEnd = Datetime.newInstance(req.reqDate, endT);
-    }
-
-  
+   
     // Sorter for slot options by start ascending
     private class SlotStartAsc implements System.Comparator<TestDriveDTOs.SlotDTO> {
         public Integer compare(TestDriveDTOs.SlotDTO a, TestDriveDTOs.SlotDTO b) {

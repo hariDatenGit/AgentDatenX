@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Vehicle__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Links this time slot to a specific vehicle from the inventory for vehicle-specific scheduling</description>
+    <inlineHelpText>Select the vehicle from your inventory if this time slot is specific to a particular vehicle. Leave blank for general time slots that can be used for any vehicle.</inlineHelpText>
+    <label>Vehicle</label>
+    <referenceTo>Vehicle</referenceTo>
+    <relationshipLabel>Time Slots</relationshipLabel>
+    <relationshipName>TimeSlots</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

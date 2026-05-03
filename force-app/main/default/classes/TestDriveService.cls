@@ -157,6 +157,7 @@ public with sharing class TestDriveService {
                 Dealer__c = req.dealerId,
                 Vehicle__c = req.vehicleId,
                 Zip__c = req.zip,
+                Customer_Email__c =req.email,
                 PreferredDateTime__c = req.slotStart,
                 Status__c = 'Scheduled',
                 Source__c = 'Agentforce',
@@ -192,15 +193,5 @@ public with sharing class TestDriveService {
         return resp;
     }
 
-    // Helper to parse various datetime string formats into a UTC Datetime
-    private static Datetime parseFlexibleDateTime(String s) {
-        if (String.isBlank(s)) return null;
-        // Try ISO8601 first
-        try { return Datetime.valueOfGmt(s); } catch (Exception ignore) {}
-        // Try space separated "yyyy-MM-dd HH:mm"
-        try { return Datetime.valueOf(s); } catch (Exception ignore2) {}
-        // Try "yyyy-MM-ddTHH:mm"
-        try { return Datetime.valueOf(s.replace('T',' ')); } catch (Exception ignore3) {}
-        return null;
-    }
+   
 }
