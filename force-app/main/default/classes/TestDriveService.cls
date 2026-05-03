@@ -128,14 +128,14 @@ public with sharing class TestDriveService {
         // Resolve Contact/Lead
         Id contactId;
         Id leadId;
-        if (!String.isBlank(req.email)) {
-            List<Contact> contacts = [SELECT Id FROM Contact WHERE Email = :req.email LIMIT 1];
-            if (!contacts.isEmpty()) contactId = contacts[0].Id;
-            if (contactId == null) {
-                List<Lead> leads = [SELECT Id FROM Lead WHERE Email = :req.email LIMIT 1];
-                if (!leads.isEmpty()) leadId = leads[0].Id;
-            }
-        }
+        // if (!String.isBlank(req.email)) {
+        //     List<Contact> contacts = [SELECT Id FROM Contact WHERE Email = :req.email LIMIT 1];
+        //     if (!contacts.isEmpty()) contactId = contacts[0].Id;
+        //     if (contactId == null) {
+        //         List<Lead> leads = [SELECT Id FROM Lead WHERE Email = :req.email LIMIT 1];
+        //         if (!leads.isEmpty()) leadId = leads[0].Id;
+        //     }
+        // }
         // If still none, create a Lead minimally
         if (contactId == null && leadId == null) {
             Lead newLead = new Lead(
